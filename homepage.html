@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourist Places Home</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+        }
+        /* Fixed Navigation Bar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width:100%;
+            background: #8a0c0c;
+            color: #bfbaba;
+            display:flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 1000;
+            height: 90px;
+        }
+        .navbar .logo {
+            font-size: 1.7em;
+            font-weight:bolder
+        }
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar ul li {
+            margin: 0 15px;
+        }
+        .navbar ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1em;
+            transition: color 0.2s;
+        }
+        .navbar ul li a:hover {
+            color: #ffd700;
+        }
+        /* Responsive Gallery */
+        .gallery {
+            margin-top: 80px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .place-card {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s;
+        }
+        .place-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s;
+        }
+        .place-card .caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            font-size: 1.2em;
+            text-align: center;
+            transition: color 0.3s;
+        }
+        /* Fullscreen Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            width: auto;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .modal-content img {
+            width: 100%;
+            max-width: 800px;
+            max-height: 80vh;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        .modal-caption {
+            margin-top: 20px;
+            font-size: 2em;
+            color: #ffd700;
+            text-align: center;
+            transition: color 0.3s;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2em;
+            color: #fff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+        @media (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+                height: auto;
+                padding: 10px;
+            }
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+            .place-card img {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Tourist Explorer</div>
+        <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="detination.html">Destinations</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Contact Us</a></li>
+        </ul>
+    </nav>
+    <div class="gallery">
+        <div class="place-card" data-caption="Eiffel Tower, Paris">
+            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Eiffel Tower">
+            <div class="caption">Eiffel Tower, Paris</div>
+        </div>
+        <div class="place-card" data-caption="Great Wall, China">
+            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80" alt="Great Wall">
+            <div class="caption">Great Wall, China</div>
+        </div>
+        <div class="place-card" data-caption="Santorini, Greece">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80" alt="Santorini">
+            <div class="caption">Santorini, Greece</div>
+        </div>
+        <div class="place-card" data-caption="Sydney Opera House, Australia">
+            <img src="https://images.unsplash.com/photo-1465378553266-2c1f7b37a6a0?auto=format&fit=crop&w=800&q=80" alt="Sydney Opera House">
+            <div class="caption">Sydney Opera House, Australia</div>
+        </div>
+    </div>
+    <!-- Modal for fullscreen image -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeBtn">&times;</button>
+            <img id="modalImg" src="" alt="Tourist Place">
+            <div class="modal-caption" id="modalCaption"></div>
+        </div>
+    </div>
+    <script>
+        // Modal logic
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modalImg');
+        const modalCaption = document.getElementById('modalCaption');
+        const closeBtn = document.getElementById('closeBtn');
+        const placeCards = document.querySelectorAll('.place-card');
+
+        placeCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const imgSrc = card.querySelector('img').src;
+                const caption = card.getAttribute('data-caption');
+                modalImg.src = imgSrc;
+                modalCaption.textContent = caption;
+                modal.classList.add('active');
+                // Change caption color on modal open
+                modalCaption.style.color = '#ffd700';
+            });
+            // Change caption color on card click
+            card.querySelector('.caption').style.transition = 'color 0.3s';
+            card.addEventListener('click', () => {
+                card.querySelector('.caption').style.color = '#ffd700';
+            });
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            // Reset all card captions color
+            placeCards.forEach(card => {
+                card.querySelector('.caption').style.color = '#fff';
+            });
+        });
+
+        // Close modal on outside click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                placeCards.forEach(card => {
+                    card.querySelector('.caption').style.color = '#fff';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
